@@ -27,7 +27,7 @@ func (s *AuthedURMService) FindUserResourceMappings(ctx context.Context, filter 
 
 	authedUrms := urms[:0]
 	for _, urm := range urms {
-		orgID := orgIDFromContext(ctx)
+		orgID := orgIDFromContext(ctx) // todo (al) could this be moved out?
 		if orgID != nil {
 			if _, _, err := authorizer.AuthorizeRead(ctx, urm.ResourceType, urm.ResourceID, *orgID); err != nil {
 				continue

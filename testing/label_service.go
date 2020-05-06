@@ -21,6 +21,7 @@ var labelCmpOptions = cmp.Options{
 	cmp.Comparer(func(x, y []byte) bool {
 		return bytes.Equal(x, y)
 	}),
+	// cmpopts.IgnoreFields(influxdb.Label{}, "ID"), todo(al) ??
 	cmp.Transformer("Sort", func(in []*influxdb.Label) []*influxdb.Label {
 		out := append([]*influxdb.Label(nil), in...) // Copy input to avoid mutating it
 		sort.Slice(out, func(i, j int) bool {
@@ -243,6 +244,7 @@ func CreateLabel(
 			args: args{
 				label: &influxdb.Label{
 					Name:  "Tag2",
+					ID:    MustIDBase16(labelOneID),
 					OrgID: MustIDBase16(orgOneID),
 					Properties: map[string]string{
 						"color": "fff000",
@@ -940,6 +942,7 @@ func CreateLabelMapping(
 				},
 			},
 		},
+		// todo (al) is this obsolete?
 		// {
 		// 	name: "duplicate label mappings",
 		// 	fields: LabelFields{

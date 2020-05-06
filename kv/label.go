@@ -284,7 +284,7 @@ func (s *Service) CreateLabel(ctx context.Context, l *influxdb.Label) error {
 			return err
 		}
 
-		if err := s.createUserResourceMappingForOrg(ctx, tx, l.OrgID, l.ID, influxdb.LabelsResourceType); err != nil {
+		if err := s.CreateUserResourceMappingForOrg(ctx, tx, l.OrgID, l.ID, influxdb.LabelsResourceType); err != nil {
 			return err
 		}
 
@@ -311,7 +311,7 @@ func (s *Service) PutLabel(ctx context.Context, l *influxdb.Label) error {
 	})
 }
 
-func (s *Service) createUserResourceMappingForOrg(ctx context.Context, tx Tx, orgID influxdb.ID, resID influxdb.ID, resType influxdb.ResourceType) error {
+func (s *Service) CreateUserResourceMappingForOrg(ctx context.Context, tx Tx, orgID influxdb.ID, resID influxdb.ID, resType influxdb.ResourceType) error {
 	span, ctx := tracing.StartSpanFromContext(ctx)
 	defer span.Finish()
 

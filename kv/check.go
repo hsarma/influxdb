@@ -287,7 +287,7 @@ func (s *Service) createCheck(ctx context.Context, tx Tx, c influxdb.CheckCreate
 		return err
 	}
 
-	return s.createUserResourceMappingForOrg(ctx, tx, c.GetOrgID(), c.GetID(), influxdb.ChecksResourceType)
+	return s.CreateUserResourceMappingForOrg(ctx, tx, c.GetOrgID(), c.GetID(), influxdb.ChecksResourceType)
 }
 
 func (s *Service) createCheckTask(ctx context.Context, tx Tx, c influxdb.CheckCreate) (*influxdb.Task, error) {
