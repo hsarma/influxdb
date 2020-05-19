@@ -6,13 +6,10 @@ import (
 
 	"github.com/influxdata/influxdb/v2"
 	"github.com/influxdata/influxdb/v2/authorizer"
+	kithttp "github.com/influxdata/influxdb/v2/kit/transport/http"
 )
 
 var _ influxdb.LabelService = (*AuthedLabelService)(nil)
-
-type labelContext string
-
-const ctxOrgKey labelContext = "orgID"
 
 type AuthedLabelService struct {
 	s influxdb.LabelService
@@ -67,7 +64,7 @@ func (s *AuthedLabelService) FindResourceLabels(ctx context.Context, filter infl
 	}
 
 	// check the permissions for the resource by the org on the context
-	orgID := orgIDFromContext(ctx)
+	orgID := kithttp.OrgIDFromContext(ctx)
 	if orgID == nil {
 		return nil, errors.New("failed to find orgID on context")
 	}
@@ -133,13 +130,4 @@ func (s *AuthedLabelService) DeleteLabelMapping(ctx context.Context, m *influxdb
 		return err
 	}
 	return s.s.DeleteLabelMapping(ctx, m)
-}
-
-func orgIDFromContext(ctx context.Context) *influxdb.ID {
-	v := ctx.Value(ctxOrgKey)
-	if v == nil {
-		return nil
-	}
-	id := v.(influxdb.ID)
-	return &id
 }

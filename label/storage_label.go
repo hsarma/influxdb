@@ -177,8 +177,6 @@ func (s *Store) UpdateLabel(ctx context.Context, tx kv.Tx, l *influxdb.Label) er
 	return nil
 }
 
-// TODO (al) get rid of mappings here...?
-// https://github.com/influxdata/influxdb/issues/11278
 func (s *Store) DeleteLabel(ctx context.Context, tx kv.Tx, id influxdb.ID) error {
 	label, err := s.GetLabel(ctx, tx, id)
 	if err != nil {
@@ -290,7 +288,12 @@ func (s *Store) FindResourceLabels(ctx context.Context, tx kv.Tx, filter influxd
 
 		*ls = append(*ls, l)
 	}
-	return nil
+
+	if err := cur.Err(); err != nil {
+		return err
+	}
+
+	return cur.Close()
 }
 
 func (s *Store) DeleteLabelMapping(ctx context.Context, tx kv.Tx, m *influxdb.LabelMapping) error {
@@ -409,7 +412,11 @@ func forEachLabel(ctx context.Context, tx kv.Tx, fn func(*influxdb.Label) bool) 
 		}
 	}
 
-	return nil
+	if err := cur.Err(); err != nil {
+		return err
+	}
+
+	return cur.Close()
 }
 
 // uniqueID returns nil if the ID provided is unique, returns an error otherwise

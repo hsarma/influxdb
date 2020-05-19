@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/influxdata/influxdb/v2"
 	influxdbcontext "github.com/influxdata/influxdb/v2/context"
+	kithttp "github.com/influxdata/influxdb/v2/kit/transport/http"
 	"github.com/influxdata/influxdb/v2/mock"
 	influxdbtesting "github.com/influxdata/influxdb/v2/testing"
 )
@@ -268,7 +269,7 @@ func TestLabelService_FindLabels(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewAuthedLabelService(tt.fields.LabelService)
 
-			ctx := context.WithValue(context.Background(), ctxOrgKey, orgOneInfluxID)
+			ctx := context.WithValue(context.Background(), kithttp.CtxOrgKey, orgOneInfluxID)
 			ctx = influxdbcontext.SetAuthorizer(ctx, mock.NewMockAuthorizer(false, []influxdb.Permission{tt.args.permission}))
 
 			labels, err := s.FindLabels(ctx, influxdb.LabelFilter{})
@@ -812,7 +813,7 @@ func TestLabelService_FindResourceLabels(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewAuthedLabelService(tt.fields.LabelService)
 
-			ctx := context.WithValue(context.Background(), ctxOrgKey, orgOneInfluxID)
+			ctx := context.WithValue(context.Background(), kithttp.CtxOrgKey, orgOneInfluxID)
 			ctx = influxdbcontext.SetAuthorizer(ctx, mock.NewMockAuthorizer(false, tt.args.permissions))
 
 			labels, err := s.FindResourceLabels(ctx, tt.args.filter)

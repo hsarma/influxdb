@@ -92,15 +92,16 @@ func (h *LabelHandler) handlePostLabel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO(al): ensure that the specified org actually exists
-	// can be done in service
+	if err := label.Validate(); err != nil {
+		h.api.Err(w, r, err)
+		return
+	}
 
 	if err := h.labelSvc.CreateLabel(r.Context(), &label); err != nil {
 		h.api.Err(w, r, err)
 		return
 	}
 	h.log.Debug("Label created", zap.String("label", fmt.Sprint(label)))
-	// todo (al) add logging to middleware
 
 	h.api.Respond(w, r, http.StatusCreated, newLabelResponse(&label))
 }
@@ -111,7 +112,7 @@ func (h *LabelHandler) handleGetLabel(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.api.Err(w, r, err)
 		return
-	} // old message label is not valid
+	}
 
 	l, err := h.labelSvc.FindLabelByID(r.Context(), *id)
 	if err != nil {

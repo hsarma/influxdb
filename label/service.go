@@ -9,14 +9,18 @@ import (
 )
 
 type Service struct {
-	store *Store
-	kvSvc *kv.Service
+	store      *Store
+	urmCreator UserResourceMappingCreator
 }
 
-func NewService(st *Store, kvSvc *kv.Service) influxdb.LabelService {
+type UserResourceMappingCreator interface {
+	CreateUserResourceMappingForOrg(ctx context.Context, tx kv.Tx, orgID influxdb.ID, resID influxdb.ID, resType influxdb.ResourceType) error
+}
+
+func NewService(st *Store, urmCreator UserResourceMappingCreator) influxdb.LabelService {
 	return &Service{
-		store: st,
-		kvSvc: kvSvc, // todo (al) this can be removed once URMs are removed from the Label service
+		store:      st,
+		urmCreator: urmCreator, // todo (al) this can be removed once URMs are removed from the Label service
 	}
 }
 
@@ -39,8 +43,7 @@ func (s *Service) CreateLabel(ctx context.Context, l *influxdb.Label) error {
 		if err := s.store.CreateLabel(ctx, tx, l); err != nil {
 			return err
 		}
-
-		if err := s.kvSvc.CreateUserResourceMappingForOrg(ctx, tx, l.OrgID, l.ID, influxdb.LabelsResourceType); err != nil {
+		if err := s.urmCreator.CreateUserResourceMappingForOrg(ctx, tx, l.OrgID, l.ID, influxdb.LabelsResourceType); err != nil {
 			return err
 		}
 
@@ -115,7 +118,7 @@ func (s *Service) UpdateLabel(ctx context.Context, id influxdb.ID, upd influxdb.
 	})
 
 	if err != nil {
-		return nil, err // todo (al) not found error?
+		return nil, err
 	}
 
 	if len(upd.Properties) > 0 && label.Properties == nil {
@@ -224,7 +227,7 @@ func (s *Service) CreateLabelMapping(ctx context.Context, m *influxdb.LabelMappi
 		return nil
 	})
 	if err != nil {
-		return err // todo (al) not found error
+		return err
 	}
 
 	return s.store.Update(ctx, func(tx kv.Tx) error {
