@@ -10666,6 +10666,8 @@ components:
           enum:
             - pass
             - fail
+        version:
+          type: string
     Labels:
       type: array
       items:
